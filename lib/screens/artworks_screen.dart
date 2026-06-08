@@ -1,23 +1,33 @@
 import 'package:flutter/material.dart';
 import '../services/met_api_service.dart';
-import 'artworks_screen.dart';
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+import 'artwork_details_screen.dart';
+
+class ArtworksScreen extends StatefulWidget {
+  final int departmentId;
+
+  const ArtworksScreen({
+    super.key,
+    required this.departmentId,
+  });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<ArtworksScreen> createState() =>
+      _ArtworksScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _ArtworksScreenState
+    extends State<ArtworksScreen> {
 
-  late Future<List<dynamic>> departmentsFuture;
+  late Future<List<int>> artworksFuture;
 
   @override
   void initState() {
     super.initState();
 
-    departmentsFuture =
-        MetApiService.fetchDepartments();
+    artworksFuture =
+        MetApiService.fetchObjectIds(
+          widget.departmentId,
+        );
   }
 
   @override
@@ -25,12 +35,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text("MetGallery"),
+        title: const Text("Artworks"),
       ),
 
-      body: FutureBuilder<List<dynamic>>(
+      body: FutureBuilder<List<int>>(
 
-        future: departmentsFuture,
+        future: artworksFuture,
 
         builder: (context, snapshot) {
 
@@ -51,28 +61,36 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
 
-          final departments =
+          final objectIds =
               snapshot.data ?? [];
+
+          if (objectIds.isEmpty) {
+            return const Center(
+              child: Text(
+                "No artworks found",
+              ),
+            );
+          }
 
           return ListView.builder(
 
-            itemCount: departments.length,
+            itemCount: objectIds.length > 20
+                ? 20
+                : objectIds.length,
 
             itemBuilder: (context, index) {
 
-              final department =
-              departments[index];
+              final objectId =
+              objectIds[index];
 
               return Card(
-                margin: const EdgeInsets.all(10),
+                margin:
+                const EdgeInsets.all(8),
 
                 child: ListTile(
 
-                  leading:
-                  const Icon(Icons.museum),
-
                   title: Text(
-                    department["displayName"],
+                    "Artwork $objectId",
                   ),
 
                   trailing: const Icon(
@@ -80,14 +98,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   onTap: () {
+
                     Navigator.push(
+
                       context,
 
                       MaterialPageRoute(
                         builder: (_) =>
-                            ArtworksScreen(
-                              departmentId:
-                              department["departmentId"],
+                            ArtworkDetailsScreen(
+                              objectId: objectId,
                             ),
                       ),
                     );

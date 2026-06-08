@@ -24,4 +24,45 @@ class MetApiService {
         "Błąd pobierania działów"
     );
   }
+  static Future<List<int>>
+  fetchObjectIds(
+      int departmentId) async {
+
+    final response = await http.get(
+      Uri.parse(
+          "$baseUrl/search?departmentId=$departmentId&q=art"
+      ),
+    );
+
+    if(response.statusCode == 200){
+
+      final data =
+      jsonDecode(response.body);
+
+      return
+        List<int>.from(
+            data["objectIDs"] ?? []
+        );
+    }
+
+    throw Exception("Błąd");
+  }
+  static Future<dynamic>
+  fetchArtwork(int id) async {
+
+    final response = await http.get(
+      Uri.parse(
+          "$baseUrl/objects/$id"
+      ),
+    );
+
+    if(response.statusCode == 200){
+
+      return jsonDecode(
+          response.body
+      );
+    }
+
+    throw Exception("Błąd");
+  }
 }
