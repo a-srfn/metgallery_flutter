@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/met_api_service.dart';
 import 'artwork_details_screen.dart';
-
+import '../models/artwork.dart';
 class ArtworksScreen extends StatefulWidget {
   final int departmentId;
 
@@ -17,15 +17,18 @@ class ArtworksScreen extends StatefulWidget {
 
 class _ArtworksScreenState
     extends State<ArtworksScreen> {
+    final TextEditingController searchController =
+    TextEditingController();
 
-  late Future<List<int>> artworksFuture;
+  String searchText = "";
+  late Future<List<Artwork>> artworksFuture;
 
   @override
   void initState() {
     super.initState();
 
     artworksFuture =
-        MetApiService.fetchObjectIds(
+        MetApiService.fetchArtworkPreview(
           widget.departmentId,
         );
   }
@@ -38,7 +41,7 @@ class _ArtworksScreenState
         title: const Text("Artworks"),
       ),
 
-      body: FutureBuilder<List<int>>(
+      body: FutureBuilder<List<Artwork>>(
 
         future: artworksFuture,
 
@@ -61,60 +64,110 @@ class _ArtworksScreenState
             );
           }
 
-          final objectIds =
+          final artworks =
               snapshot.data ?? [];
+          final filteredArtworks =
+          artworks.where((artwork) {
 
-          if (objectIds.isEmpty) {
-            return const Center(
-              child: Text(
-                "No artworks found",
+            return artwork.title
+                .toLowerCase()
+                .contains(searchText);
+
+          }).toList();
+          return Column(
+            children: [
+
+              Padding(
+                padding: const EdgeInsets.all(8),
+
+                child: TextField(
+
+                  controller: searchController,
+
+                  decoration: const InputDecoration(
+                    labelText: "Search artworks",
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                  ),
+
+                  onChanged: (value) {
+
+                    setState(() {
+
+                      searchText =
+                          value.toLowerCase();
+                    });
+                  },
+                ),
               ),
-            );
-          }
 
-          return ListView.builder(
+              Expanded(
+                child: filteredArtworks.isEmpty
 
-            itemCount: objectIds.length > 20
-                ? 20
-                : objectIds.length,
-
-            itemBuilder: (context, index) {
-
-              final objectId =
-              objectIds[index];
-
-              return Card(
-                margin:
-                const EdgeInsets.all(8),
-
-                child: ListTile(
-
-                  title: Text(
-                    "Artwork $objectId",
+                    ? const Center(
+                  child: Text(
+                    "No artworks found",
                   ),
+                )
 
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                  ),
+                    : ListView.builder(
 
-                  onTap: () {
+                  itemCount:
+                  filteredArtworks.length,
 
-                    Navigator.push(
+                  itemBuilder: (context, index) {
 
-                      context,
+                    final artwork =
+                    filteredArtworks[index];
 
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ArtworkDetailsScreen(
-                              objectId: objectId,
+                    return Card(
+
+                      margin:
+                      const EdgeInsets.all(8),
+
+                      child: ListTile(
+
+                        title: Text(
+                          artwork.title,
+                        ),
+
+                        subtitle: Text(
+
+                          artwork.artist.isEmpty
+
+                              ? "Unknown artist"
+
+                              : artwork.artist,
+                        ),
+
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios,
+                        ),
+
+                        onTap: () {
+
+                          Navigator.push(
+
+                            context,
+
+                            MaterialPageRoute(
+
+                              builder: (_) =>
+                                  ArtworkDetailsScreen(
+                                    objectId:
+                                    artwork.id,
+                                  ),
                             ),
+                          );
+                        },
                       ),
                     );
                   },
                 ),
-              );
-            },
+              ),
+            ],
           );
+
         },
       ),
     );

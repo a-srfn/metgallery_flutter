@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import '../models/artwork.dart';
 class MetApiService {
 
   static const String baseUrl =
@@ -64,5 +64,32 @@ class MetApiService {
     }
 
     throw Exception("Błąd");
+  }
+  static Future<List<Artwork>>
+  fetchArtworkPreview(
+      int departmentId) async {
+
+    final ids =
+    await fetchObjectIds(
+        departmentId);
+
+    List<Artwork> artworks = [];
+
+    final limit =
+    ids.length > 20
+        ? 20
+        : ids.length;
+
+    for (int i = 0; i < limit; i++) {
+
+      final json =
+      await fetchArtwork(ids[i]);
+
+      artworks.add(
+        Artwork.fromJson(json),
+      );
+    }
+
+    return artworks;
   }
 }

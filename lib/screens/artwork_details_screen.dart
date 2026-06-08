@@ -131,6 +131,13 @@ class _ArtworkDetailsScreenState
                     ArtworkLocalDatabase.saveArtwork(
                       savedArtwork,
                     );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Artwork saved to offline library",
+                        ),
+                      ),
+                    );
                   },
 
                   child: const Text(
