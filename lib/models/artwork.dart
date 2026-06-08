@@ -24,4 +24,25 @@ class Artwork {
       culture: json["culture"] ?? "",
     );
   }
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "title": title,
+      "imageUrl": imageUrl,
+      "artist": artist,
+      "culture": culture,
+    };
+  }
+
+  factory Artwork.fromMap(
+      Map<String, dynamic> map) {
+
+    return Artwork(
+      id: map["id"],
+      title: map["title"],
+      imageUrl: map["imageUrl"],
+      artist: map["artist"],
+      culture: map["culture"],
+    );
+  }
 }

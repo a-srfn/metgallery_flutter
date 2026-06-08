@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/met_api_service.dart';
-
+import '../models/artwork.dart';
+import '../services/artwork_local_database.dart';
 class ArtworkDetailsScreen
     extends StatefulWidget {
 
@@ -119,6 +120,22 @@ class _ArtworkDetailsScreenState
 
                 Text(
                   "Date: ${artwork["objectDate"] ?? "Unknown"}",
+                ),
+                ElevatedButton(
+                  onPressed: () {
+
+                    final savedArtwork = Artwork.fromJson(
+                      artwork,
+                    );
+
+                    ArtworkLocalDatabase.saveArtwork(
+                      savedArtwork,
+                    );
+                  },
+
+                  child: const Text(
+                    "Save to Offline Library",
+                  ),
                 ),
               ],
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/met_api_service.dart';
 import 'artworks_screen.dart';
+import 'offline_library_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -26,6 +27,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
       appBar: AppBar(
         title: const Text("MetGallery"),
+        actions: [
+
+          IconButton(
+
+            icon: const Icon(
+              Icons.bookmark,
+            ),
+
+            onPressed: () {
+
+              Navigator.push(
+
+                context,
+
+                MaterialPageRoute(
+
+                  builder: (_) =>
+                  const OfflineLibraryScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
 
       body: FutureBuilder<List<dynamic>>(
